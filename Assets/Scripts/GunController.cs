@@ -12,6 +12,7 @@ public class GunController : MonoBehaviour
     public int maxAmmo = 8;
     public float range = 100f;
     public OVRInput.Controller controller = OVRInput.Controller.RTouch;
+    public LayerMask enemylayer;
 
     private float nextFireTime;
     private int currentAmmo;
@@ -38,12 +39,14 @@ public class GunController : MonoBehaviour
     void Fire()
     {
         currentAmmo--;
-
+        
         // Raycast from muzzle forward
         RaycastHit hit;
-        if (Physics.Raycast(muzzlePoint.position, muzzlePoint.forward, out hit, range))
+        if (Physics.Raycast(muzzlePoint.position, muzzlePoint.forward, out hit, range, enemylayer))
         {
             Debug.Log("Hit: " + hit.collider.gameObject.name);
+            Debug.Log("Hit: " + hit.collider.gameObject.name);
+            Debug.Log("Has ShootingTarget: " + (hit.collider.GetComponent<ShootingTarget>() != null));
             
             ShootingTarget target = hit.collider.GetComponent<ShootingTarget>();
             if (target != null) target.TakeHit();

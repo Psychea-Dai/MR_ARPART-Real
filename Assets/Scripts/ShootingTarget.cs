@@ -9,8 +9,18 @@ public class ShootingTarget : MonoBehaviour
 
     void Start()
     {
-        mat = GetComponent<Renderer>().material;
-        originalColor = mat.color;
+        // 先在自身找Renderer，找不到就在子物体中找
+        Renderer rend = GetComponent<Renderer>();
+        if (rend == null)
+            rend = GetComponentInChildren<Renderer>();
+        
+        if (rend != null)
+        {
+            mat = rend.material;
+            originalColor = mat.color;
+        }
+
+       
     }
 
     public void TakeHit()
@@ -22,19 +32,30 @@ public class ShootingTarget : MonoBehaviour
 
     IEnumerator FlashWhite()
     {
+        if (mat != null){
         mat.color = Color.white;
         yield return new WaitForSeconds(0.1f);
         mat.color = originalColor;
+        }
     }
 
     IEnumerator DestroyTarget()
     {
-        mat.color = Color.black;
+        if (mat != null)
+            mat.color = Color.black;
         yield return new WaitForSeconds(0.3f);
-        gameObject.SetActive(false);
-        yield return new WaitForSeconds(2f);
-        health = 3;
-        mat.color = originalColor;
-        gameObject.SetActive(true);
+
+        Spore spore = GetComponent<Spore>();
+        if (spore != null)
+        {
+            GameManager gm = FindFirstObjectByType<GameManager>();
+            if (gm != null)
+            {
+                gm.AddScore(spore.scoreValue);
+                gm.OnEnemyKilled();
+            }
+        }
+
+        Destroy(gameObject);
     }
 }
